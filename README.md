@@ -4,17 +4,9 @@
 
 Sistema de processamento de formulários que recebe eventos de webhook do Tally.so, processa as respostas de forma assíncrona e gera relatórios personalizados para participantes.
 
-## 🏗️ Arquitetura do Sistema
+**Stack**: Flask + Celery + PostgreSQL + Redis
 
-### Componentes Principais
-
-- **Flask API**: Recebe webhooks do Tally.so
-- **Redis**: Broker de mensagens para Celery
-- **Celery Workers**: Processamento assíncrono das tarefas
-- **PostgreSQL**: Armazenamento das respostas dos formulários
-- **Docker**: Containerização de todos os serviços
-
-### Fluxo de Dados
+## 🏗️ Arquitetura
 
 ```mermaid
 graph TD
@@ -30,7 +22,7 @@ graph TD
     H -->|Email| J[Participante]
 ```
 
-## 🔄 Processo de Processamento
+## 🔄 Como funciona?
 
 ### 1. Recebimento do Webhook
 - Flask API recebe evento do Tally.so
@@ -61,47 +53,56 @@ O Celery Worker executa 3 tarefas principais:
 
 ```mermaid
 graph LR
-    A[Flask API Container] --> B[PostgreSQL Container]
-    A --> C[Redis Container]
-    C --> D[Celery Worker Container]
+    A[Flask API] --> B[PostgreSQL]
+    A --> C[Redis]
+    C --> D[Celery Worker]
     D --> B
     D --> E[SMTP Server]
 ```
 
-## 🚀 Como Executar
+## 🚀 Deploy com Docker
 
-### Desenvolvimento Local
+### 1. Configurar variáveis de ambiente
 ```bash
-# Instalar dependências
-pip install -r requirements.txt
-
-# Executar Flask API
-python main.py
-
-# Executar Celery Worker (terminal separado)
-celery -A app.celery worker --loglevel=info
+cp .env.example .env
 ```
 
-### Produção com Docker
+Editar `.env` com as configurações SMTP e webhook secret
+> Note que nem sempre gostaríamos de expor as portas dos demais serviços, somente de `app`.
+
+### 2. Subir todos os serviços
 ```bash
-# Subir todos os serviços
 docker compose up -d
+```
 
-# Verificar logs
+### 3. Verificar status
+```bash
+# Ver logs
 docker compose logs -f
+
+# Health check da API
+curl http://localhost:5000/api/v1/health/
 ```
 
-## 🔧 Configuração
+### 4. Gerenciar serviços
+```bash
+# Parar serviços
+docker compose down
 
-### Variáveis de Ambiente
-```env
-DATABASE_URL=postgresql://admin:password@postgres:5432/insper_forms
-REDIS_URL=redis://redis:6379/0
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-TALLY_WEBHOOK_SECRET=your-webhook-secret
+# Parar e limpar volumes (remove dados)
+docker compose down -v
+
+# Rebuild após mudanças no código
+docker compose up -d --build
 ```
+
+## 📦 Serviços
+
+- **Flask API** (Gunicorn): `localhost:5000`
+- **PostgreSQL**: `localhost:5432`
+- **Redis**: `localhost:6379`
+- **Celery Worker**: processamento assíncrono
+
+---
 
 **Desenvolvido pelo Insper Code para Na Prática** 🎓

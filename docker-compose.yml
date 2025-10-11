@@ -1,0 +1,90 @@
+x-common-env: &common-env
+  DATABASE_URL: postgresql://admin:password@postgres:5432/insper_forms
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/0
+  CELERY_RESULT_BACKEND: redis://redis:6379/0
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  TALLY_WEBHOOK_SECRET: ${TALLY_WEBHOOK_SECRET:-}
+
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: insper_postgres
+    environment:
+      POSTGRES_DB: insper_forms
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    ports:
+      - target: 5432
+        published: ${EXPOSE_POSTGRES_PORT:-}
+        protocol: tcp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U admin -d insper_forms']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: insper_redis
+    ports:
+      - target: 6379
+        published: ${EXPOSE_REDIS_PORT:-}
+        protocol: tcp
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: insper_app
+    ports:
+      - target: 5000
+        published: ${EXPOSE_APP_PORT:-}
+        protocol: tcp
+    environment:
+      <<: *common-env
+      FLASK_ENV: development
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:5000/api/v1/health/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  celery_worker:
+    build: .
+    container_name: insper_celery_worker
+    command: celery -A app.celery_app worker --loglevel=info
+    environment:
+      <<: *common-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
