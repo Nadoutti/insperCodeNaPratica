@@ -7,7 +7,7 @@ x-common-env: &common-env
   SMTP_PORT: ${SMTP_PORT:-}
   SMTP_USER: ${SMTP_USER:-}
   SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-  TALLY_WEBHOOK_SECRET: ${TALLY_WEBHOOK_SECRET:-}
+  TALLY_API_KEY: ${TALLY_API_KEY:-}
 
 services:
   postgres:

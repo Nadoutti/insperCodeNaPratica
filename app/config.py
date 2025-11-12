@@ -27,7 +27,7 @@ class Config:
     SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", None)
 
     # Tally
-    TALLY_WEBHOOK_SECRET = os.getenv("TALLY_WEBHOOK_SECRET", None)
+    TALLY_API_KEY = os.getenv("TALLY_API_KEY", None)
 
     # Flask
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
