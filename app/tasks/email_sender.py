@@ -66,12 +66,40 @@ Equipe Na Prática - Insper
 
         # Enviar email
         try:
-            with smtplib.SMTP(Config.SMTP_HOST, Config.SMTP_PORT) as server:
-                # server.starttls()
-                server.login(Config.SMTP_USER, Config.SMTP_PASSWORD)
-                server.send_message(msg)
+            print(
+                f"Conectando ao servidor SMTP {Config.SMTP_HOST}:{Config.SMTP_PORT}..."
+            )
+
+            # Porta 465 usa SSL/TLS direto (SMTP_SSL)
+            # Porta 587 usa STARTTLS
+            if Config.SMTP_PORT == 465:
+                print("Usando SMTP_SSL (porta 465)...")
+                with smtplib.SMTP_SSL(
+                    Config.SMTP_HOST, Config.SMTP_PORT, timeout=30
+                ) as server:
+                    server.set_debuglevel(1)
+                    print("Fazendo login...")
+                    server.login(Config.SMTP_USER, Config.SMTP_PASSWORD)
+                    print("Enviando email...")
+                    server.send_message(msg)
+                    print(f"Email enviado com sucesso para {response.email}")
+            else:
+                print("Usando SMTP com STARTTLS (porta 587)...")
+                with smtplib.SMTP(
+                    Config.SMTP_HOST, Config.SMTP_PORT, timeout=30
+                ) as server:
+                    server.set_debuglevel(1)
+                    print("Iniciando STARTTLS...")
+                    server.starttls()
+                    print("Fazendo login...")
+                    server.login(Config.SMTP_USER, Config.SMTP_PASSWORD)
+                    print("Enviando email...")
+                    server.send_message(msg)
+                    print(f"Email enviado com sucesso para {response.email}")
+        except smtplib.SMTPException as e:
+            raise Exception(f"Erro SMTP ao enviar email: {type(e).__name__} - {str(e)}")
         except Exception as e:
-            raise Exception(f"Erro ao enviar email: {str(e)}")
+            raise Exception(f"Erro ao enviar email: {type(e).__name__} - {str(e)}")
 
         # Limpar arquivo temporário
         if os.path.exists(pdf_path):
