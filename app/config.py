@@ -43,7 +43,7 @@ class Config:
 
     @property
     def TALLY_WEBHOOK_URL(self):
-        return f"{self.DOMAIN}/api/v1/webhooks"
+        return f"{self.DOMAIN}/api/v1/webhooks/tally"
 
 
 conf = Config()
