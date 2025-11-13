@@ -29,6 +29,7 @@ class Config:
     SMTP_USER = os.getenv("SMTP_USER", None)
     SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", None)
     SMTP_FROM = os.getenv("SMTP_FROM", None)
+    SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() in ("true", "1", "yes")
 
     # Tally
     TALLY_API_KEY = os.getenv("TALLY_API_KEY", "")

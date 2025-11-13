@@ -9,6 +9,7 @@ x-common-env: &common-env
   SMTP_USER: ${SMTP_USER:-}
   SMTP_PASSWORD: ${SMTP_PASSWORD:-}
   SMTP_FROM: ${SMTP_FROM:-}
+  SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
   TALLY_API_KEY: ${TALLY_API_KEY:-}
   TALLY_WEBHOOK_SECRET: ${TALLY_WEBHOOK_SECRET:-}
   SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}

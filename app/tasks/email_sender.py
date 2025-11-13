@@ -1,5 +1,6 @@
 import os
 import smtplib
+import ssl
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -22,26 +23,36 @@ def send_email_with_pdf(response_id: int, pdf_path: str):
     with Session(engine) as session:
         response = session.get(FormResponse, response_id)
         if not response:
-            raise Exception(f"Response {response_id} não encontrado")
+            raise Exception(f"❌ Resposta com ID {response_id} não encontrada")
 
         # Validar configurações SMTP
-        if not Config.SMTP_USER or not Config.SMTP_PASSWORD:
+        if not Config.SMTP_HOST or not Config.SMTP_USER or not Config.SMTP_PASSWORD:
             raise Exception(
-                "Configurações SMTP não definidas. Configure SMTP_USER e SMTP_PASSWORD."
+                "⚠️ Configurações SMTP incompletas. Verifique as variáveis de ambiente."
             )
+
+        try:
+            port = int(Config.SMTP_PORT)
+        except ValueError:
+            raise Exception("⚠️ A porta SMTP deve ser um número (ex: 465 ou 587).")
+
+        use_tls = Config.SMTP_USE_TLS
 
         # Configurar email
         msg = MIMEMultipart()
-        msg["From"] = Config.SMTP_FROM or Config.SMTP_USER
+        header_from = Config.SMTP_FROM or Config.SMTP_USER
+        msg["From"] = header_from
         msg["To"] = response.email
         msg["Subject"] = "Seu Relatório de Estilos de Trabalho - Na Prática"
 
         # Corpo do email
         body = f"""Olá {response.name},
 
-Obrigado por participar do Teste de Estilos de Trabalho!
+✨ Obrigado por participar do Teste de Estilos de Trabalho! ✨
 
-Seu relatório personalizado está em anexo. Este documento contém uma análise detalhada dos seus estilos de trabalho preferidos, que podem ajudá-lo a identificar ambientes profissionais onde você tende a ser mais produtivo e satisfeito.
+Seu relatório personalizado está em anexo.
+Este documento contém uma análise detalhada dos seus estilos de trabalho preferidos,
+que podem ajudá-lo a identificar ambientes profissionais onde você tende a ser mais produtivo e satisfeito.
 
 Caso tenha alguma dúvida sobre os resultados, não hesite em entrar em contato.
 
@@ -53,57 +64,60 @@ Equipe Na Prática - Insper
 
         # Anexar PDF
         if not os.path.exists(pdf_path):
-            raise FileNotFoundError(f"Arquivo PDF não encontrado: {pdf_path}")
+            raise FileNotFoundError(f"❌ Arquivo PDF não encontrado: {pdf_path}")
 
         with open(pdf_path, "rb") as f:
             pdf_attachment = MIMEApplication(f.read(), _subtype="pdf")
+            filename = (
+                f"relatorio_estilos_trabalho_{response.name.replace(' ', '_')}.pdf"
+            )
             pdf_attachment.add_header(
-                "Content-Disposition",
-                "attachment",
-                filename=f"relatorio_estilos_trabalho_{response.name.replace(' ', '_')}.pdf",
+                "Content-Disposition", "attachment", filename=filename
             )
             msg.attach(pdf_attachment)
 
         # Enviar email
+        context = ssl.create_default_context()
+        envelope_from = Config.SMTP_USER
+        to_addrs = [response.email]
+
+        print(f"📡 Conectando a {Config.SMTP_HOST}:{port} (TLS: {use_tls})...")
+
         try:
-            print(
-                f"Conectando ao servidor SMTP {Config.SMTP_HOST}:{Config.SMTP_PORT}..."
-            )
-
-            # Porta 465 usa SSL/TLS direto (SMTP_SSL)
-            # Porta 587 usa STARTTLS
-            if Config.SMTP_PORT == 465:
-                print("Usando SMTP_SSL (porta 465)...")
+            if not use_tls:
+                # Envio com SSL direto (ex: porta 465)
+                print("🔒 Usando conexão SMTP_SSL...")
                 with smtplib.SMTP_SSL(
-                    Config.SMTP_HOST, Config.SMTP_PORT, timeout=30
+                    Config.SMTP_HOST, port, context=context, timeout=30
                 ) as server:
-                    server.set_debuglevel(1)
-                    print("Fazendo login...")
                     server.login(Config.SMTP_USER, Config.SMTP_PASSWORD)
-                    print("Enviando email...")
-                    server.send_message(msg)
-                    print(f"Email enviado com sucesso para {response.email}")
+                    server.send_message(msg, from_addr=envelope_from, to_addrs=to_addrs)
             else:
-                print("Usando SMTP com STARTTLS (porta 587)...")
-                with smtplib.SMTP(
-                    Config.SMTP_HOST, Config.SMTP_PORT, timeout=30
-                ) as server:
-                    server.set_debuglevel(1)
-                    print("Iniciando STARTTLS...")
-                    server.starttls()
-                    print("Fazendo login...")
+                # Envio com STARTTLS (ex: porta 587)
+                print("🔐 Usando conexão STARTTLS...")
+                with smtplib.SMTP(Config.SMTP_HOST, port, timeout=30) as server:
+                    server.ehlo()
+                    server.starttls(context=context)
+                    server.ehlo()
                     server.login(Config.SMTP_USER, Config.SMTP_PASSWORD)
-                    print("Enviando email...")
-                    server.send_message(msg)
-                    print(f"Email enviado com sucesso para {response.email}")
-        except smtplib.SMTPException as e:
-            raise Exception(f"Erro SMTP ao enviar email: {type(e).__name__} - {str(e)}")
-        except Exception as e:
-            raise Exception(f"Erro ao enviar email: {type(e).__name__} - {str(e)}")
+                    server.send_message(msg, from_addr=envelope_from, to_addrs=to_addrs)
 
-        # Limpar arquivo temporário
-        if os.path.exists(pdf_path):
-            try:
-                os.remove(pdf_path)
-            except Exception:
-                pass  # Não falhar se não conseguir deletar o arquivo temporário
+            print(f"✅ E-mail enviado com sucesso para {response.email}")
+
+        except smtplib.SMTPAuthenticationError:
+            raise Exception(
+                "❌ Falha na autenticação SMTP. Verifique usuário e senha (ou gere senha de app)."
+            )
+        except smtplib.SMTPRecipientsRefused:
+            raise Exception("❌ O destinatário foi recusado pelo servidor SMTP.")
+        except smtplib.SMTPException as e:
+            raise Exception(f"❌ Erro SMTP: {type(e).__name__} - {e}")
+        except Exception as e:
+            raise Exception(f"❌ Erro inesperado: {type(e).__name__} - {e}")
+        finally:
+            # Limpar arquivo temporário
+            if os.path.exists(pdf_path):
+                try:
+                    os.remove(pdf_path)
+                except Exception:
+                    pass
