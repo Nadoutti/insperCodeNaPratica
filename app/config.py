@@ -9,7 +9,7 @@ class Config:
     """Configurações da aplicação"""
 
     # Endpoint público
-    DOMAIN = os.getenv("DOMAIN", "https://example.com")
+    DOMAIN = os.getenv("DOMAIN", "https://example.com").removesuffix("/")
 
     # Database
     DATABASE_URL = os.getenv(
@@ -30,7 +30,8 @@ class Config:
     SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", None)
 
     # Tally
-    TALLY_API_KEY = os.getenv("TALLY_API_KEY", None)
+    TALLY_API_KEY = os.getenv("TALLY_API_KEY", "")
+    TALLY_WEBHOOK_SECRET = os.getenv("TALLY_WEBHOOK_SECRET", None)
 
     # Flask
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
@@ -39,3 +40,10 @@ class Config:
     # SQLModel
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    @property
+    def TALLY_WEBHOOK_URL(self):
+        return f"{self.DOMAIN}/api/v1/webhooks"
+
+
+conf = Config()

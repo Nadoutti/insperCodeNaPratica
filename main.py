@@ -1,6 +1,5 @@
 from app import create_app
 from app.utils.database import create_db_and_tables
-from app.utils.tally import setup_webhook
 
 app = create_app()
 
@@ -8,7 +7,6 @@ app = create_app()
 def main():
     """Função principal para executar a aplicação"""
     create_db_and_tables()
-    setup_webhook()
 
     app.run(host="0.0.0.0", port=5000, debug=True)
 
