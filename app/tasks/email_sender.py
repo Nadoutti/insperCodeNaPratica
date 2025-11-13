@@ -67,7 +67,7 @@ Equipe Na Prática - Insper
         # Enviar email
         try:
             with smtplib.SMTP(Config.SMTP_HOST, Config.SMTP_PORT) as server:
-                server.starttls()
+                # server.starttls()
                 server.login(Config.SMTP_USER, Config.SMTP_PASSWORD)
                 server.send_message(msg)
         except Exception as e:
