@@ -24,4 +24,4 @@ COPY . .
 EXPOSE 5000
 
 # Default command (can be overridden in docker-compose)
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:create_app()"]
+CMD ["sh", "-c", "python init_db.py && gunicorn -w 4 -b 0.0.0.0:5000 'app:create_app()'"]
