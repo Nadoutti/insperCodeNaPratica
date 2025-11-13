@@ -72,6 +72,8 @@ pydantic==2.12.0
     #   sqlmodel
 pydantic-core==2.41.1
     # via pydantic
+pymupdf==1.26.6
+    # via inspercodenapratica (pyproject.toml)
 pytally-sdk==0.1.9
     # via inspercodenapratica (pyproject.toml)
 python-dateutil==2.9.0.post0

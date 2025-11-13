@@ -28,6 +28,7 @@ class Config:
     SMTP_PORT = int(os.getenv("SMTP_PORT", "587") or "587")
     SMTP_USER = os.getenv("SMTP_USER", None)
     SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", None)
+    SMTP_FROM = os.getenv("SMTP_FROM", None)
 
     # Tally
     TALLY_API_KEY = os.getenv("TALLY_API_KEY", "")
