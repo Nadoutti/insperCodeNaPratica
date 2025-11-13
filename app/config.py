@@ -8,6 +8,9 @@ load_dotenv()
 class Config:
     """Configurações da aplicação"""
 
+    # Endpoint público
+    DOMAIN = os.getenv("DOMAIN", "https://example.com")
+
     # Database
     DATABASE_URL = os.getenv(
         "DATABASE_URL", "postgresql://admin:password@localhost:5432/insper_forms"

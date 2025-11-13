@@ -4,12 +4,18 @@ amqp==5.3.1
     # via kombu
 annotated-types==0.7.0
     # via pydantic
+anyio==4.11.0
+    # via httpx
 billiard==4.2.2
     # via celery
 blinker==1.9.0
     # via flask
 celery==5.5.3
     # via inspercodenapratica (pyproject.toml)
+certifi==2025.11.12
+    # via
+    #   httpcore
+    #   httpx
 click==8.3.0
     # via
     #   celery
@@ -29,6 +35,18 @@ greenlet==3.2.4
     # via sqlalchemy
 gunicorn==23.0.0
     # via inspercodenapratica (pyproject.toml)
+h11==0.16.0
+    # via httpcore
+httpcore==1.0.9
+    # via httpx
+httpx==0.28.1
+    # via
+    #   inspercodenapratica (pyproject.toml)
+    #   pytally-sdk
+idna==3.11
+    # via
+    #   anyio
+    #   httpx
 itsdangerous==2.2.0
     # via flask
 jinja2==3.1.6
@@ -54,6 +72,8 @@ pydantic==2.12.0
     #   sqlmodel
 pydantic-core==2.41.1
     # via pydantic
+pytally-sdk==0.1.9
+    # via inspercodenapratica (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via celery
 python-dotenv==1.1.1
@@ -62,6 +82,8 @@ redis==5.2.1
     # via kombu
 six==1.17.0
     # via python-dateutil
+sniffio==1.3.1
+    # via anyio
 sqlalchemy==2.0.44
     # via sqlmodel
 sqlmodel==0.0.27
