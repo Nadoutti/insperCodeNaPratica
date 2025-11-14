@@ -17,6 +17,8 @@ class ReplacementConfig(TypedDict):
     fontsize: int
     color: tuple[float, float, float]
     align: int
+    expand_right: float
+    expand_down: float
 
 
 # Constantes
@@ -30,11 +32,41 @@ NIVEL_THRESHOLDS = {
 }
 
 FONT_CONFIGS = {
-    "titulo": {"fontname": "hebo", "fontsize": 20, "color": BLACK_COLOR},
-    "subtitulo": {"fontname": "helv", "fontsize": 18, "color": BLACK_COLOR},
-    "score": {"fontname": "hebo", "fontsize": 42, "color": GRAY_COLOR},
-    "nivel": {"fontname": "helv", "fontsize": 16, "color": GRAY_COLOR},
-    "descritivo": {"fontname": "helv", "fontsize": 12, "color": GRAY_COLOR},
+    "titulo": {
+        "fontname": "hebo",
+        "fontsize": 20,
+        "color": BLACK_COLOR,
+        "expand_right": 200,  # Expandir para direita
+        "expand_down": 0,
+    },
+    "subtitulo": {
+        "fontname": "helv",
+        "fontsize": 18,
+        "color": BLACK_COLOR,
+        "expand_right": 200,  # Expandir para direita
+        "expand_down": 0,
+    },
+    "score": {
+        "fontname": "hebo",
+        "fontsize": 42,
+        "color": GRAY_COLOR,
+        "expand_right": 0,
+        "expand_down": 0,
+    },
+    "nivel": {
+        "fontname": "helv",
+        "fontsize": 16,
+        "color": GRAY_COLOR,
+        "expand_right": 0,
+        "expand_down": 0,
+    },
+    "descritivo": {
+        "fontname": "helv",
+        "fontsize": 11,  # Reduzido de 12 para 11
+        "color": GRAY_COLOR,
+        "expand_right": 150,  # Expandir bastante para direita
+        "expand_down": 30,  # Expandir para baixo para quebra de linha
+    },
 }
 
 
@@ -95,22 +127,22 @@ def build_replacements(response: FormResponse) -> dict[str, ReplacementConfig]:
 
     # Configuração das categorias com placeholders corretos
     categorias = [
-        ("agilidade", "AGILIDADE", "{{DESCRITIVO-AGILIDADE}}"),
-        ("agressividade", "AGRESSIVIDADE", "{{DESCRITIVO-AGRESSIVIDADE}}"),
-        ("atencao_detalhes", "ATENÇÃO A DETALHES", "{{DESCRITIVO-ATENCAO-DETALHES}}"),
+        ("agilidade", "agilidade", "{{DESCRITIVO-AGILIDADE}}"),
+        ("agressividade", "agressividade", "{{DESCRITIVO-AGRESSIVIDADE}}"),
+        ("atencao_detalhes", "atenção a detalhes", "{{DESCRITIVO-ATENCAO-DETALHES}}"),
         (
             "enfase_recompensas",
-            "ÊNFASE EM RECOMPENSA",
+            "ênfase em recompensa",
             "{{DESCRITIVO-ENFASE-RECOMPENSA}}",
         ),
-        ("estabilidade", "ESTABILIDADE", "{{DESCRITIVO-ESTABILIDADE}}"),
-        ("informalidade", "INFORMALIDADE", "{{DESCRITIVO-INFORMALIDADE}}"),
+        ("estabilidade", "estabilidade", "{{DESCRITIVO-ESTABILIDADE}}"),
+        ("informalidade", "informalidade", "{{DESCRITIVO-INFORMALIDADE}}"),
         (
             "orientacao_resultados",
-            "ORIENTAÇÃO PARA RESULTADO",
+            "orientação para resultado",
             "{{DESCRITIVO-ORIENTACAO-RESULTADO}}",
         ),
-        ("trabalho_equipe", "TRABALHO EM EQUIPE", "{{TRABALHO-EQUIPE}}"),
+        ("trabalho_equipe", "trabalho em equipe", "{{TRABALHO-EQUIPE}}"),
     ]
 
     for idx, (key, nome_categoria, placeholder_descritivo) in enumerate(
@@ -145,9 +177,17 @@ def apply_replacements(
             text_instances = page.search_for(placeholder)
 
             for inst in text_instances:
-                # Usar o retângulo original sem expansão
+                # Expandir retângulo apenas para direita e para baixo
+                expanded_rect = fitz.Rect(
+                    inst.x0,  # Mantém a posição esquerda
+                    inst.y0,  # Mantém a posição superior
+                    inst.x1 + config["expand_right"],  # Expande para direita
+                    inst.y1 + config["expand_down"],  # Expande para baixo
+                )
+
+                # Adicionar redação com área expandida
                 page.add_redact_annot(
-                    inst,
+                    expanded_rect,
                     text=config["text"],
                     fontname=config["fontname"],
                     fontsize=config["fontsize"],
