@@ -85,201 +85,228 @@ def generate_pdf(response_id: int) -> str:
         # "heit" = Helvetica-Oblique (itálico)
 
         replacements = {
-            # Nome, email, data (fonte normal, tamanho 16, preto)
+            # Nome, email, data (fonte normal, tamanho MAIOR: 22, preto)
             "{{nome}}": {
                 "text": response.name,
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 22,  # Aumentado de 16 para 22
                 "color": (0, 0, 0),
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{email}}": {
                 "text": response.email,
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 22,  # Aumentado de 16 para 22
                 "color": (0, 0, 0),
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{data}}": {
                 "text": data_atual,
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 22,  # Aumentado de 16 para 22
                 "color": (0, 0, 0),
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
-            # Scores numéricos (fonte bold, tamanho 38, cinza)
+            # Scores numéricos (fonte bold, tamanho MAIOR: 45, cinza, CENTRALIZADO)
             "{1}": {
                 "text": f"{response.score_agilidade:.1f}"
                 if response.score_agilidade
                 else "0.0",
                 "fontname": "hebo",  # Helvetica Bold
-                "fontsize": 38,
+                "fontsize": 45,  # Aumentado de 38 para 45
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{2}": {
                 "text": f"{response.score_agressividade:.1f}"
                 if response.score_agressividade
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 38,
+                "fontsize": 45,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{3}": {
                 "text": f"{response.score_atencao_detalhes:.1f}"
                 if response.score_atencao_detalhes
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 38,
+                "fontsize": 45,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{4}": {
                 "text": f"{response.score_enfase_recompensas:.1f}"
                 if response.score_enfase_recompensas
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 38,
+                "fontsize": 45,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{5}": {
                 "text": f"{response.score_estabilidade:.1f}"
                 if response.score_estabilidade
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 38,
+                "fontsize": 45,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{6}": {
                 "text": f"{response.score_informalidade:.1f}"
                 if response.score_informalidade
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 38,
+                "fontsize": 45,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{7}": {
                 "text": f"{response.score_orientacao_resultados:.1f}"
                 if response.score_orientacao_resultados
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 38,
+                "fontsize": 45,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{8}": {
                 "text": f"{response.score_trabalho_equipe:.1f}"
                 if response.score_trabalho_equipe
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 38,
+                "fontsize": 45,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
-            # Níveis (fonte normal, tamanho 16, cinza)
+            # Níveis (fonte normal, tamanho MAIOR: 20, cinza, CENTRALIZADO)
             "{{nivel1}}": {
                 "text": get_nivel(response.score_agilidade or 0),
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 20,  # Aumentado de 16 para 20
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{{nivel2}}": {
                 "text": get_nivel(response.score_agressividade or 0),
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 20,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{{nivel3}}": {
                 "text": get_nivel(response.score_atencao_detalhes or 0),
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 20,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{{nivel4}}": {
                 "text": get_nivel(response.score_enfase_recompensas or 0),
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 20,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{{nivel5}}": {
                 "text": get_nivel(response.score_estabilidade or 0),
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 20,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{{nivel6}}": {
                 "text": get_nivel(response.score_informalidade or 0),
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 20,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{{nivel7}}": {
                 "text": get_nivel(response.score_orientacao_resultados or 0),
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 20,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
             "{{nivel8}}": {
                 "text": get_nivel(response.score_trabalho_equipe or 0),
                 "fontname": "helv",
-                "fontsize": 16,
+                "fontsize": 20,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_CENTER,
             },
-            # Descritivos (fonte normal, tamanho 10, cinza)
+            # Descritivos (fonte normal, tamanho BEM MAIOR: 14, cinza)
             "{{DESCRITIVO-AGILIDADE}}": {
                 "text": get_descritivo("AGILIDADE", response.score_agilidade or 0),
                 "fontname": "helv",
-                "fontsize": 10,
+                "fontsize": 14,  # Aumentado de 10 para 14
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{DESCRITIVO-AGRESSIVIDADE}}": {
                 "text": get_descritivo(
                     "AGRESSIVIDADE", response.score_agressividade or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 10,
+                "fontsize": 14,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{DESCRITIVO-ATENCAO-DETALHES}}": {
                 "text": get_descritivo(
                     "ATENÇÃO A DETALHES", response.score_atencao_detalhes or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 10,
+                "fontsize": 14,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{DESCRITIVO-ENFASE-RECOMPENSA}}": {
                 "text": get_descritivo(
                     "ÊNFASE EM RECOMPENSA", response.score_enfase_recompensas or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 10,
+                "fontsize": 14,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{DESCRITIVO-ESTABILIDADE}}": {
                 "text": get_descritivo(
                     "ESTABILIDADE", response.score_estabilidade or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 10,
+                "fontsize": 14,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{DESCRITIVO-INFORMALIDADE}}": {
                 "text": get_descritivo(
                     "INFORMALIDADE", response.score_informalidade or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 10,
+                "fontsize": 14,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{DESCRITIVO-ORIENTACAO-RESULTADO}}": {
                 "text": get_descritivo(
                     "ORIENTAÇÃO A RESULTADOS", response.score_orientacao_resultados or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 10,
+                "fontsize": 14,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
             "{{TRABALHO-EQUIPE}}": {
                 "text": get_descritivo(
                     "TRABALHO EM EQUIPE", response.score_trabalho_equipe or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 10,
+                "fontsize": 14,
                 "color": gray_color,
+                "align": fitz.TEXT_ALIGN_LEFT,
             },
         }
 
@@ -297,13 +324,14 @@ def generate_pdf(response_id: int) -> str:
                 text_instances = page.search_for(placeholder)
 
                 for inst in text_instances:
-                    # Adicionar redação com fonte e cor especificadas
+                    # Adicionar redação com fonte, cor e alinhamento especificados
                     page.add_redact_annot(
                         inst,
                         text=replacement_info["text"],
                         fontname=replacement_info["fontname"],
                         fontsize=replacement_info["fontsize"],
                         text_color=replacement_info["color"],
+                        align=replacement_info.get("align", fitz.TEXT_ALIGN_LEFT),
                     )
 
             # Tratar o placeholder quebrado {{DESCRITIVO-ORIENTACAO-RESULTAD\nO}}
@@ -328,8 +356,9 @@ def generate_pdf(response_id: int) -> str:
                     combined_rect,
                     text=replacement_info.get("text", ""),
                     fontname=replacement_info.get("fontname", "helv"),
-                    fontsize=replacement_info.get("fontsize", 10),
+                    fontsize=replacement_info.get("fontsize", 14),
                     text_color=replacement_info.get("color", gray_color),
+                    align=replacement_info.get("align", fitz.TEXT_ALIGN_LEFT),
                 )
 
             # Aplicar todas as redações
