@@ -56,6 +56,9 @@ def generate_pdf(response_id: int) -> str:
     """
     Gera PDF personalizado baseado no template.
 
+    Usa apenas fontes base do PDF (Base14) que funcionam em qualquer ambiente,
+    incluindo Docker sem fontes instaladas.
+
     Args:
         response_id: ID do FormResponse no banco
 
@@ -70,72 +73,214 @@ def generate_pdf(response_id: int) -> str:
         if not response:
             raise Exception(f"Response {response_id} não encontrado")
 
-        # Preparar substituições
+        # Preparar substituições com informações de fonte por tipo
         data_atual = datetime.now().strftime("%d/%m/%Y")
 
+        # Cinza escuro usado no template
+        gray_color = (0.26, 0.26, 0.26)
+
+        # Fontes Base14 do PDF - sempre disponíveis:
+        # "helv" = Helvetica (normal)
+        # "hebo" = Helvetica-Bold
+        # "heit" = Helvetica-Oblique (itálico)
+
         replacements = {
-            "{{nome}}": response.name,
-            "{{email}}": response.email,
-            "{{data}}": data_atual,
-            # Scores numéricos
-            "{1}": f"{response.score_agilidade:.1f}"
-            if response.score_agilidade
-            else "0.0",
-            "{2}": f"{response.score_agressividade:.1f}"
-            if response.score_agressividade
-            else "0.0",
-            "{3}": f"{response.score_atencao_detalhes:.1f}"
-            if response.score_atencao_detalhes
-            else "0.0",
-            "{4}": f"{response.score_enfase_recompensas:.1f}"
-            if response.score_enfase_recompensas
-            else "0.0",
-            "{5}": f"{response.score_estabilidade:.1f}"
-            if response.score_estabilidade
-            else "0.0",
-            "{6}": f"{response.score_informalidade:.1f}"
-            if response.score_informalidade
-            else "0.0",
-            "{7}": f"{response.score_orientacao_resultados:.1f}"
-            if response.score_orientacao_resultados
-            else "0.0",
-            "{8}": f"{response.score_trabalho_equipe:.1f}"
-            if response.score_trabalho_equipe
-            else "0.0",
-            # Níveis
-            "{{nivel1}}": get_nivel(response.score_agilidade or 0),
-            "{{nivel2}}": get_nivel(response.score_agressividade or 0),
-            "{{nivel3}}": get_nivel(response.score_atencao_detalhes or 0),
-            "{{nivel4}}": get_nivel(response.score_enfase_recompensas or 0),
-            "{{nivel5}}": get_nivel(response.score_estabilidade or 0),
-            "{{nivel6}}": get_nivel(response.score_informalidade or 0),
-            "{{nivel7}}": get_nivel(response.score_orientacao_resultados or 0),
-            "{{nivel8}}": get_nivel(response.score_trabalho_equipe or 0),
-            # Descritivos
-            "{{DESCRITIVO-AGILIDADE}}": get_descritivo(
-                "AGILIDADE", response.score_agilidade or 0
-            ),
-            "{{DESCRITIVO-AGRESSIVIDADE}}": get_descritivo(
-                "AGRESSIVIDADE", response.score_agressividade or 0
-            ),
-            "{{DESCRITIVO-ATENCAO-DETALHES}}": get_descritivo(
-                "ATENÇÃO A DETALHES", response.score_atencao_detalhes or 0
-            ),
-            "{{DESCRITIVO-ENFASE-RECOMPENSA}}": get_descritivo(
-                "ÊNFASE EM RECOMPENSA", response.score_enfase_recompensas or 0
-            ),
-            "{{DESCRITIVO-ESTABILIDADE}}": get_descritivo(
-                "ESTABILIDADE", response.score_estabilidade or 0
-            ),
-            "{{DESCRITIVO-INFORMALIDADE}}": get_descritivo(
-                "INFORMALIDADE", response.score_informalidade or 0
-            ),
-            "{{DESCRITIVO-ORIENTACAO-RESULTADO}}": get_descritivo(
-                "ORIENTAÇÃO A RESULTADOS", response.score_orientacao_resultados or 0
-            ),
-            "{{TRABALHO-EQUIPE}}": get_descritivo(
-                "TRABALHO EM EQUIPE", response.score_trabalho_equipe or 0
-            ),
+            # Nome, email, data (fonte normal, tamanho 16, preto)
+            "{{nome}}": {
+                "text": response.name,
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": (0, 0, 0),
+            },
+            "{{email}}": {
+                "text": response.email,
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": (0, 0, 0),
+            },
+            "{{data}}": {
+                "text": data_atual,
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": (0, 0, 0),
+            },
+            # Scores numéricos (fonte bold, tamanho 38, cinza)
+            "{1}": {
+                "text": f"{response.score_agilidade:.1f}"
+                if response.score_agilidade
+                else "0.0",
+                "fontname": "hebo",  # Helvetica Bold
+                "fontsize": 38,
+                "color": gray_color,
+            },
+            "{2}": {
+                "text": f"{response.score_agressividade:.1f}"
+                if response.score_agressividade
+                else "0.0",
+                "fontname": "hebo",
+                "fontsize": 38,
+                "color": gray_color,
+            },
+            "{3}": {
+                "text": f"{response.score_atencao_detalhes:.1f}"
+                if response.score_atencao_detalhes
+                else "0.0",
+                "fontname": "hebo",
+                "fontsize": 38,
+                "color": gray_color,
+            },
+            "{4}": {
+                "text": f"{response.score_enfase_recompensas:.1f}"
+                if response.score_enfase_recompensas
+                else "0.0",
+                "fontname": "hebo",
+                "fontsize": 38,
+                "color": gray_color,
+            },
+            "{5}": {
+                "text": f"{response.score_estabilidade:.1f}"
+                if response.score_estabilidade
+                else "0.0",
+                "fontname": "hebo",
+                "fontsize": 38,
+                "color": gray_color,
+            },
+            "{6}": {
+                "text": f"{response.score_informalidade:.1f}"
+                if response.score_informalidade
+                else "0.0",
+                "fontname": "hebo",
+                "fontsize": 38,
+                "color": gray_color,
+            },
+            "{7}": {
+                "text": f"{response.score_orientacao_resultados:.1f}"
+                if response.score_orientacao_resultados
+                else "0.0",
+                "fontname": "hebo",
+                "fontsize": 38,
+                "color": gray_color,
+            },
+            "{8}": {
+                "text": f"{response.score_trabalho_equipe:.1f}"
+                if response.score_trabalho_equipe
+                else "0.0",
+                "fontname": "hebo",
+                "fontsize": 38,
+                "color": gray_color,
+            },
+            # Níveis (fonte normal, tamanho 16, cinza)
+            "{{nivel1}}": {
+                "text": get_nivel(response.score_agilidade or 0),
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": gray_color,
+            },
+            "{{nivel2}}": {
+                "text": get_nivel(response.score_agressividade or 0),
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": gray_color,
+            },
+            "{{nivel3}}": {
+                "text": get_nivel(response.score_atencao_detalhes or 0),
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": gray_color,
+            },
+            "{{nivel4}}": {
+                "text": get_nivel(response.score_enfase_recompensas or 0),
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": gray_color,
+            },
+            "{{nivel5}}": {
+                "text": get_nivel(response.score_estabilidade or 0),
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": gray_color,
+            },
+            "{{nivel6}}": {
+                "text": get_nivel(response.score_informalidade or 0),
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": gray_color,
+            },
+            "{{nivel7}}": {
+                "text": get_nivel(response.score_orientacao_resultados or 0),
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": gray_color,
+            },
+            "{{nivel8}}": {
+                "text": get_nivel(response.score_trabalho_equipe or 0),
+                "fontname": "helv",
+                "fontsize": 16,
+                "color": gray_color,
+            },
+            # Descritivos (fonte normal, tamanho 10, cinza)
+            "{{DESCRITIVO-AGILIDADE}}": {
+                "text": get_descritivo("AGILIDADE", response.score_agilidade or 0),
+                "fontname": "helv",
+                "fontsize": 10,
+                "color": gray_color,
+            },
+            "{{DESCRITIVO-AGRESSIVIDADE}}": {
+                "text": get_descritivo(
+                    "AGRESSIVIDADE", response.score_agressividade or 0
+                ),
+                "fontname": "helv",
+                "fontsize": 10,
+                "color": gray_color,
+            },
+            "{{DESCRITIVO-ATENCAO-DETALHES}}": {
+                "text": get_descritivo(
+                    "ATENÇÃO A DETALHES", response.score_atencao_detalhes or 0
+                ),
+                "fontname": "helv",
+                "fontsize": 10,
+                "color": gray_color,
+            },
+            "{{DESCRITIVO-ENFASE-RECOMPENSA}}": {
+                "text": get_descritivo(
+                    "ÊNFASE EM RECOMPENSA", response.score_enfase_recompensas or 0
+                ),
+                "fontname": "helv",
+                "fontsize": 10,
+                "color": gray_color,
+            },
+            "{{DESCRITIVO-ESTABILIDADE}}": {
+                "text": get_descritivo(
+                    "ESTABILIDADE", response.score_estabilidade or 0
+                ),
+                "fontname": "helv",
+                "fontsize": 10,
+                "color": gray_color,
+            },
+            "{{DESCRITIVO-INFORMALIDADE}}": {
+                "text": get_descritivo(
+                    "INFORMALIDADE", response.score_informalidade or 0
+                ),
+                "fontname": "helv",
+                "fontsize": 10,
+                "color": gray_color,
+            },
+            "{{DESCRITIVO-ORIENTACAO-RESULTADO}}": {
+                "text": get_descritivo(
+                    "ORIENTAÇÃO A RESULTADOS", response.score_orientacao_resultados or 0
+                ),
+                "fontname": "helv",
+                "fontsize": 10,
+                "color": gray_color,
+            },
+            "{{TRABALHO-EQUIPE}}": {
+                "text": get_descritivo(
+                    "TRABALHO EM EQUIPE", response.score_trabalho_equipe or 0
+                ),
+                "fontname": "helv",
+                "fontsize": 10,
+                "color": gray_color,
+            },
         }
 
         # Abrir template PDF
@@ -147,41 +292,47 @@ def generate_pdf(response_id: int) -> str:
 
         # Substituir texto em todas as páginas
         for page in doc:
-            # Aplicar substituições normais
-            for old_text, new_text in replacements.items():
-                # Buscar todas as instâncias do texto
-                text_instances = page.search_for(old_text)
+            for placeholder, replacement_info in replacements.items():
+                # Buscar o placeholder
+                text_instances = page.search_for(placeholder)
 
                 for inst in text_instances:
-                    # Adicionar anotação de redação
-                    page.add_redact_annot(inst, new_text)
+                    # Adicionar redação com fonte e cor especificadas
+                    page.add_redact_annot(
+                        inst,
+                        text=replacement_info["text"],
+                        fontname=replacement_info["fontname"],
+                        fontsize=replacement_info["fontsize"],
+                        text_color=replacement_info["color"],
+                    )
 
-            # Tratar especialmente o placeholder quebrado
-            # {{DESCRITIVO-ORIENTACAO-RESULTAD\nO}}
+            # Tratar o placeholder quebrado {{DESCRITIVO-ORIENTACAO-RESULTAD\nO}}
             part1_list = page.search_for("{{DESCRITIVO-ORIENTACAO-RESULTAD")
             part2_list = page.search_for("O}}")
 
             if part1_list and part2_list:
-                # Encontrou o placeholder quebrado
-                # Pegar as coordenadas e fazer uma área grande o suficiente
-                part1 = part1_list[0]
-                part2 = part2_list[0]
-
-                # Criar retângulo que engloba as duas partes
+                # Criar retângulo combinado
                 combined_rect = fitz.Rect(
-                    part1.x0,  # x inicial da primeira parte
-                    part1.y0,  # y inicial da primeira parte
-                    part2.x1,  # x final da segunda parte
-                    part2.y1,  # y final da segunda parte
+                    part1_list[0].x0,
+                    part1_list[0].y0,
+                    part2_list[0].x1,
+                    part2_list[0].y1,
                 )
 
-                # Substituir com o texto correto
-                replacement_text = replacements.get(
-                    "{{DESCRITIVO-ORIENTACAO-RESULTADO}}", ""
+                # Pegar o texto de substituição
+                replacement_info = replacements.get(
+                    "{{DESCRITIVO-ORIENTACAO-RESULTADO}}", {}
                 )
-                page.add_redact_annot(combined_rect, replacement_text)
 
-            # Aplicar redações
+                page.add_redact_annot(
+                    combined_rect,
+                    text=replacement_info.get("text", ""),
+                    fontname=replacement_info.get("fontname", "helv"),
+                    fontsize=replacement_info.get("fontsize", 10),
+                    text_color=replacement_info.get("color", gray_color),
+                )
+
+            # Aplicar todas as redações
             page.apply_redactions()
 
         # Salvar PDF gerado
