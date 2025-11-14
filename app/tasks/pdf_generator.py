@@ -92,255 +92,255 @@ def generate_pdf(response_id: int) -> str:
         gray_color = (0.26, 0.26, 0.26)
 
         replacements = {
-            # Nome, email, data - expandir bastante horizontalmente
+            # Nome, email, data - expandir moderadamente
             "{{nome}}": {
                 "text": response.name,
                 "fontname": "hebo",  # Bold para destaque
-                "fontsize": 24,
+                "fontsize": 20,
                 "color": (0, 0, 0),
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (100, 10),  # (horizontal, vertical)
+                "expand": (50, 5),  # Reduzido para não sair da página
             },
             "{{email}}": {
                 "text": response.email,
                 "fontname": "helv",
-                "fontsize": 20,
+                "fontsize": 18,
                 "color": (0, 0, 0),
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (100, 10),
+                "expand": (50, 5),
             },
             "{{data}}": {
                 "text": data_atual,
                 "fontname": "helv",
-                "fontsize": 20,
+                "fontsize": 18,
                 "color": (0, 0, 0),
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (50, 10),
+                "expand": (30, 5),
             },
-            # Scores numéricos - expandir bastante para números grandes
+            # Scores numéricos - expandir moderadamente
             "{1}": {
                 "text": f"{response.score_agilidade:.1f}"
                 if response.score_agilidade
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 48,
+                "fontsize": 42,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 20),
+                "expand": (20, 10),  # Reduzido
             },
             "{2}": {
                 "text": f"{response.score_agressividade:.1f}"
                 if response.score_agressividade
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 48,
+                "fontsize": 42,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 20),
+                "expand": (20, 10),
             },
             "{3}": {
                 "text": f"{response.score_atencao_detalhes:.1f}"
                 if response.score_atencao_detalhes
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 48,
+                "fontsize": 42,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 20),
+                "expand": (20, 10),
             },
             "{4}": {
                 "text": f"{response.score_enfase_recompensas:.1f}"
                 if response.score_enfase_recompensas
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 48,
+                "fontsize": 42,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 20),
+                "expand": (20, 10),
             },
             "{5}": {
                 "text": f"{response.score_estabilidade:.1f}"
                 if response.score_estabilidade
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 48,
+                "fontsize": 42,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 20),
+                "expand": (20, 10),
             },
             "{6}": {
                 "text": f"{response.score_informalidade:.1f}"
                 if response.score_informalidade
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 48,
+                "fontsize": 42,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 20),
+                "expand": (20, 10),
             },
             "{7}": {
                 "text": f"{response.score_orientacao_resultados:.1f}"
                 if response.score_orientacao_resultados
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 48,
+                "fontsize": 42,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 20),
+                "expand": (20, 10),
             },
             "{8}": {
                 "text": f"{response.score_trabalho_equipe:.1f}"
                 if response.score_trabalho_equipe
                 else "0.0",
                 "fontname": "hebo",
-                "fontsize": 48,
+                "fontsize": 42,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 20),
+                "expand": (20, 10),
             },
-            # Níveis - expandir para centralizar melhor
+            # Níveis - expandir moderadamente
             "{{nivel1}}": {
                 "text": get_nivel(response.score_agilidade or 0),
                 "fontname": "helv",
-                "fontsize": 18,
+                "fontsize": 16,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 10),
+                "expand": (20, 5),  # Reduzido
             },
             "{{nivel2}}": {
                 "text": get_nivel(response.score_agressividade or 0),
                 "fontname": "helv",
-                "fontsize": 18,
+                "fontsize": 16,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 10),
+                "expand": (20, 5),
             },
             "{{nivel3}}": {
                 "text": get_nivel(response.score_atencao_detalhes or 0),
                 "fontname": "helv",
-                "fontsize": 18,
+                "fontsize": 16,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 10),
+                "expand": (20, 5),
             },
             "{{nivel4}}": {
                 "text": get_nivel(response.score_enfase_recompensas or 0),
                 "fontname": "helv",
-                "fontsize": 18,
+                "fontsize": 16,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 10),
+                "expand": (20, 5),
             },
             "{{nivel5}}": {
                 "text": get_nivel(response.score_estabilidade or 0),
                 "fontname": "helv",
-                "fontsize": 18,
+                "fontsize": 16,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 10),
+                "expand": (20, 5),
             },
             "{{nivel6}}": {
                 "text": get_nivel(response.score_informalidade or 0),
                 "fontname": "helv",
-                "fontsize": 18,
+                "fontsize": 16,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 10),
+                "expand": (20, 5),
             },
             "{{nivel7}}": {
                 "text": get_nivel(response.score_orientacao_resultados or 0),
                 "fontname": "helv",
-                "fontsize": 18,
+                "fontsize": 16,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 10),
+                "expand": (20, 5),
             },
             "{{nivel8}}": {
                 "text": get_nivel(response.score_trabalho_equipe or 0),
                 "fontname": "helv",
-                "fontsize": 18,
+                "fontsize": 16,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_CENTER,
-                "expand": (40, 10),
+                "expand": (20, 5),
             },
-            # Descritivos - expandir MUITO horizontalmente para textos longos
+            # Descritivos - expandir horizontalmente mas com cuidado
             "{{DESCRITIVO-AGILIDADE}}": {
                 "text": get_descritivo("AGILIDADE", response.score_agilidade or 0),
                 "fontname": "helv",
-                "fontsize": 13,
+                "fontsize": 12,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (150, 30),  # Muito espaço horizontal
+                "expand": (80, 15),  # Reduzido bastante
             },
             "{{DESCRITIVO-AGRESSIVIDADE}}": {
                 "text": get_descritivo(
                     "AGRESSIVIDADE", response.score_agressividade or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 13,
+                "fontsize": 12,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (150, 30),
+                "expand": (80, 15),
             },
             "{{DESCRITIVO-ATENCAO-DETALHES}}": {
                 "text": get_descritivo(
                     "ATENÇÃO A DETALHES", response.score_atencao_detalhes or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 13,
+                "fontsize": 12,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (150, 30),
+                "expand": (80, 15),
             },
             "{{DESCRITIVO-ENFASE-RECOMPENSA}}": {
                 "text": get_descritivo(
                     "ÊNFASE EM RECOMPENSA", response.score_enfase_recompensas or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 13,
+                "fontsize": 12,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (150, 30),
+                "expand": (80, 15),
             },
             "{{DESCRITIVO-ESTABILIDADE}}": {
                 "text": get_descritivo(
                     "ESTABILIDADE", response.score_estabilidade or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 13,
+                "fontsize": 12,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (150, 30),
+                "expand": (80, 15),
             },
             "{{DESCRITIVO-INFORMALIDADE}}": {
                 "text": get_descritivo(
                     "INFORMALIDADE", response.score_informalidade or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 13,
+                "fontsize": 12,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (150, 30),
+                "expand": (80, 15),
             },
             "{{DESCRITIVO-ORIENTACAO-RESULTADO}}": {
                 "text": get_descritivo(
                     "ORIENTAÇÃO A RESULTADOS", response.score_orientacao_resultados or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 13,
+                "fontsize": 12,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (150, 30),
+                "expand": (80, 15),
             },
             "{{TRABALHO-EQUIPE}}": {
                 "text": get_descritivo(
                     "TRABALHO EM EQUIPE", response.score_trabalho_equipe or 0
                 ),
                 "fontname": "helv",
-                "fontsize": 13,
+                "fontsize": 12,
                 "color": gray_color,
                 "align": fitz.TEXT_ALIGN_LEFT,
-                "expand": (150, 30),
+                "expand": (80, 15),
             },
         }
 
@@ -386,7 +386,7 @@ def generate_pdf(response_id: int) -> str:
                 )
 
                 # Expandir área
-                expanded_rect = expand_rect(combined_rect, 150, 30)
+                expanded_rect = expand_rect(combined_rect, 80, 15)
 
                 # Pegar o texto de substituição
                 replacement_info = replacements.get(
@@ -397,7 +397,7 @@ def generate_pdf(response_id: int) -> str:
                     expanded_rect,
                     text=replacement_info.get("text", ""),
                     fontname=replacement_info.get("fontname", "helv"),
-                    fontsize=replacement_info.get("fontsize", 13),
+                    fontsize=replacement_info.get("fontsize", 12),
                     text_color=replacement_info.get("color", gray_color),
                     align=replacement_info.get("align", fitz.TEXT_ALIGN_LEFT),
                 )
