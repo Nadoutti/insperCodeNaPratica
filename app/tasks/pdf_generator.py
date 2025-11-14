@@ -17,7 +17,6 @@ class ReplacementConfig(TypedDict):
     fontsize: int
     color: tuple[float, float, float]
     align: int
-    expand: tuple[float, float]
 
 
 # Constantes
@@ -31,36 +30,11 @@ NIVEL_THRESHOLDS = {
 }
 
 FONT_CONFIGS = {
-    "titulo": {
-        "fontname": "hebo",
-        "fontsize": 20,
-        "color": BLACK_COLOR,
-        "expand": (50, 5),
-    },
-    "subtitulo": {
-        "fontname": "helv",
-        "fontsize": 18,
-        "color": BLACK_COLOR,
-        "expand": (50, 5),
-    },
-    "score": {
-        "fontname": "hebo",
-        "fontsize": 42,
-        "color": GRAY_COLOR,
-        "expand": (20, 10),
-    },
-    "nivel": {
-        "fontname": "helv",
-        "fontsize": 16,
-        "color": GRAY_COLOR,
-        "expand": (20, 5),
-    },
-    "descritivo": {
-        "fontname": "helv",
-        "fontsize": 12,
-        "color": GRAY_COLOR,
-        "expand": (80, 15),
-    },
+    "titulo": {"fontname": "hebo", "fontsize": 20, "color": BLACK_COLOR},
+    "subtitulo": {"fontname": "helv", "fontsize": 18, "color": BLACK_COLOR},
+    "score": {"fontname": "hebo", "fontsize": 42, "color": GRAY_COLOR},
+    "nivel": {"fontname": "helv", "fontsize": 16, "color": GRAY_COLOR},
+    "descritivo": {"fontname": "helv", "fontsize": 12, "color": GRAY_COLOR},
 }
 
 
@@ -75,7 +49,7 @@ def get_nivel(score: float) -> str:
 def get_descritivo(categoria: str, score: float) -> str:
     """Retorna texto descritivo baseado no score da categoria."""
     nivel = get_nivel(score)
-    categoria_formatada = categoria.lower().replace("_", " ")
+    categoria_formatada = categoria.lower()
 
     descritivos = {
         "ALTO": f"Você apresenta forte preferência por ambientes com alta {categoria_formatada}.",
@@ -119,19 +93,29 @@ def build_replacements(response: FormResponse) -> dict[str, ReplacementConfig]:
         "{{data}}": create_replacement(data_atual, "subtitulo"),
     }
 
-    # Adicionar scores, níveis e descritivos dinamicamente
+    # Configuração das categorias com placeholders corretos
     categorias = [
-        ("AGILIDADE", "agilidade"),
-        ("AGRESSIVIDADE", "agressividade"),
-        ("ATENÇÃO A DETALHES", "atencao_detalhes"),
-        ("ÊNFASE EM RECOMPENSA", "enfase_recompensas"),
-        ("ESTABILIDADE", "estabilidade"),
-        ("INFORMALIDADE", "informalidade"),
-        ("ORIENTAÇÃO A RESULTADOS", "orientacao_resultados"),
-        ("TRABALHO EM EQUIPE", "trabalho_equipe"),
+        ("agilidade", "AGILIDADE", "{{DESCRITIVO-AGILIDADE}}"),
+        ("agressividade", "AGRESSIVIDADE", "{{DESCRITIVO-AGRESSIVIDADE}}"),
+        ("atencao_detalhes", "ATENÇÃO A DETALHES", "{{DESCRITIVO-ATENCAO-DETALHES}}"),
+        (
+            "enfase_recompensas",
+            "ÊNFASE EM RECOMPENSA",
+            "{{DESCRITIVO-ENFASE-RECOMPENSA}}",
+        ),
+        ("estabilidade", "ESTABILIDADE", "{{DESCRITIVO-ESTABILIDADE}}"),
+        ("informalidade", "INFORMALIDADE", "{{DESCRITIVO-INFORMALIDADE}}"),
+        (
+            "orientacao_resultados",
+            "ORIENTAÇÃO PARA RESULTADO",
+            "{{DESCRITIVO-ORIENTACAO-RESULTADO}}",
+        ),
+        ("trabalho_equipe", "TRABALHO EM EQUIPE", "{{TRABALHO-EQUIPE}}"),
     ]
 
-    for idx, (nome_categoria, key) in enumerate(categorias, start=1):
+    for idx, (key, nome_categoria, placeholder_descritivo) in enumerate(
+        categorias, start=1
+    ):
         score = scores[key]
 
         # Score numérico
@@ -145,11 +129,7 @@ def build_replacements(response: FormResponse) -> dict[str, ReplacementConfig]:
         )
 
         # Descritivo
-        descritivo_key = f"{{{{DESCRITIVO-{nome_categoria.upper().replace(' ', '-').replace('Ã', 'A').replace('Ç', 'C')}}}}}"
-        if idx == 8:  # Caso especial para TRABALHO EM EQUIPE
-            descritivo_key = "{{TRABALHO-EQUIPE}}"
-
-        replacements[descritivo_key] = create_replacement(
+        replacements[placeholder_descritivo] = create_replacement(
             get_descritivo(nome_categoria, score), "descritivo"
         )
 
@@ -165,18 +145,9 @@ def apply_replacements(
             text_instances = page.search_for(placeholder)
 
             for inst in text_instances:
-                # Expandir retângulo
-                expand_x, expand_y = config["expand"]
-                expanded_rect = fitz.Rect(
-                    inst.x0 - expand_x,
-                    inst.y0 - expand_y,
-                    inst.x1 + expand_x,
-                    inst.y1 + expand_y,
-                )
-
-                # Adicionar redação
+                # Usar o retângulo original sem expansão
                 page.add_redact_annot(
-                    expanded_rect,
+                    inst,
                     text=config["text"],
                     fontname=config["fontname"],
                     fontsize=config["fontsize"],
