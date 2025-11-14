@@ -372,37 +372,6 @@ def generate_pdf(response_id: int) -> str:
                         align=replacement_info.get("align", fitz.TEXT_ALIGN_LEFT),
                     )
 
-            # Tratar o placeholder quebrado {{DESCRITIVO-ORIENTACAO-RESULTAD\nO}}
-            part1_list = page.search_for("{{DESCRITIVO-ORIENTACAO-RESULTAD")
-            part2_list = page.search_for("O}}")
-
-            if part1_list and part2_list:
-                # Criar retângulo combinado
-                combined_rect = fitz.Rect(
-                    part1_list[0].x0,
-                    part1_list[0].y0,
-                    part2_list[0].x1,
-                    part2_list[0].y1,
-                )
-
-                # Expandir área
-                expanded_rect = expand_rect(combined_rect, 80, 15)
-
-                # Pegar o texto de substituição
-                replacement_info = replacements.get(
-                    "{{DESCRITIVO-ORIENTACAO-RESULTADO}}", {}
-                )
-
-                page.add_redact_annot(
-                    expanded_rect,
-                    text=replacement_info.get("text", ""),
-                    fontname=replacement_info.get("fontname", "helv"),
-                    fontsize=replacement_info.get("fontsize", 12),
-                    text_color=replacement_info.get("color", gray_color),
-                    align=replacement_info.get("align", fitz.TEXT_ALIGN_LEFT),
-                )
-
-            # Aplicar todas as redações
             page.apply_redactions()
 
         # Salvar PDF gerado
